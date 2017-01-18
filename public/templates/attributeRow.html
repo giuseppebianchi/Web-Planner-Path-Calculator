@@ -1,0 +1,27 @@
+<div class="row">
+  <div class="col-sm-4">
+    <div class="form-group">
+        <input type="text" class="form-control input-validation-{{type}}" placeholder="{{type2}} Attribute Name" name="{{type}}AttrName[]">
+      </div>
+  </div>
+  <div class="col-sm-2">
+    <select class="form-control" name="{{type}}GenerationRule[]"><option disabled>Select Value Generation Rule</option><option value="1">Random(K-N)</option></select>
+  </div>
+  <div class="col-sm-1">
+  <div class="form-group">
+    <input type="number" class="form-control input-validation-{{type}}" name="kValue{{type2}}[]" placeholder="K Value">
+  </div>
+  </div>
+  <div class="col-sm-1">
+  <div class="form-group">
+    <input type="number" class="form-control input-validation-{{type}}" name="nValue{{type2}}[]" placeholder="N Value">
+  </div>
+  </div>
+  <div class="col-sm-1">
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" name="isInteger{{t}}[]"> Integer
+        </label>
+      </div>
+    </div>
+</div>
