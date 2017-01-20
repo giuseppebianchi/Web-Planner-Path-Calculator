@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('Web Planner Path Calculator:server');
+var debug = require('debug')('ppc:server');
 var http = require('http');
 
 /**

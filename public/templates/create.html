@@ -8,7 +8,7 @@
     <h1>Create Tree</h1>
     <h4>Generate a tree structure using the following parameters:</h4>
     <hr class="empty">
-      <form>
+      <form id="createTreeForm">
         <div class="form-group">
           <label for="nameTree">Name</label>
           <input type="text" class="form-control" id="nameTree" placeholder="Name" name="nameTree">
@@ -46,12 +46,13 @@
             <div class="col-sm-1">
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" name="isIntegerV[]" value="1"> Integer
+                  <input type="checkbox" class="vertex-checkbox" value="1"> Integer
                 </label>
               </div>
             </div>
           </div>
         </div>
+        <input type="hidden" name="isIntegerV[]" id="checkbox0">
         <button type="button" class="btn btn-info btn-sm" id="addAttrVert">Add Vertex Attribute</button>
         <hr class="empty">
         <h4>Edges Attribute List</h4>
@@ -78,14 +79,15 @@
           <div class="col-sm-1">
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" name="isIntegerE[]"> Integer
+                  <input type="checkbox" class="edge-checkbox" value="1"> Integer
                 </label>
               </div>
             </div>
         </div>
         </div>
+        <input type="hidden" name="isIntegerE[]" id="checkbox1">
         <button type="button" class="btn btn-info btn-sm" id="addAttrEdge">Add Edge Attribute</button>
         <hr>
-        <button type="submit" class="btn btn-success btn-lg">Build Tree</button>
+        <button type="submit" class="btn btn-success btn-lg" id="buildTreeButton">Build Tree</button>
       </form>
     </div>

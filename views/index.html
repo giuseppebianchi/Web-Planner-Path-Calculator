@@ -208,6 +208,46 @@ A graph is used to model different manufacturing processes, for example a Tree c
           $(this).removeClass("input-error");
         })
 
+        //SUBMIT BUILD TREE
+        $("body, html").on("click", "#buildTreeButton", function(e){
+          e.preventDefault();
+          e.stopPropagation()
+
+          //prepare checkbox array
+          var vCheckBox = [];
+          var eCheckBox = [];
+          debugger;
+          $(".vertex-checkbox").each(function(){
+            if($(this).is(":checked")){
+              vCheckBox.push(1);
+            }else{
+              vCheckBox.push(0);
+            }
+          })
+          $(".edge-checkbox").each(function(){
+            if($(this).is(":checked")){
+              eCheckBox.push(1);
+            }else{
+              eCheckBox.push(0);
+            }
+          })
+          $("#checkbox0").val(JSON.stringify(vCheckBox));
+          $("#checkbox1").val(JSON.stringify(eCheckBox));
+
+          var form = $("#createTreeForm");
+          $.ajax({
+            type: "POST",
+            url: "/create",
+            data: form.serialize().replace(/%5B%5D/g, '[]'),
+            success: function(data){
+              alert("ok")
+            },
+            error: function(err){
+              alert("Ops! Something went wrong. Try Again!") 
+            }
+          })
+        })  
+
 
 
 
