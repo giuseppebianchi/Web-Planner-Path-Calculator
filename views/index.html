@@ -96,6 +96,9 @@ A graph is used to model different manufacturing processes, for example a Tree c
         var attributeTemplate, createTemplate, retrieveTemplate, modalTemplate, resultTemplate;
         var currentView = "Home";
 
+        //FOR CREATE PAGE
+        var Ntotal, totalInput, splitInput, depthInput;
+
         //LOAD TEMPLATE
         $.get("/templates/attributeRow.html", function(t){
           attributeTemplate = t;
@@ -121,6 +124,10 @@ A graph is used to model different manufacturing processes, for example a Tree c
           }
           content.html(Mustache.render(createTemplate, {}))
           currentView="create";
+          Ntotal = $("#totalNodes")
+          totalInput = $("#totalInput");
+          splitInput = $("#splitSize")
+          depthInput = $("#depthSize")
         })
 
         //LOAD RETRIEVE TREE PAGE
@@ -216,7 +223,7 @@ A graph is used to model different manufacturing processes, for example a Tree c
           //prepare checkbox array
           var vCheckBox = [];
           var eCheckBox = [];
-          debugger;
+          //debugger;
           $(".vertex-checkbox").each(function(){
             if($(this).is(":checked")){
               vCheckBox.push(1);
@@ -240,13 +247,25 @@ A graph is used to model different manufacturing processes, for example a Tree c
             url: "/create",
             data: form.serialize().replace(/%5B%5D/g, '[]'),
             success: function(data){
-              alert("ok")
+              console.log(data)
             },
             error: function(err){
               alert("Ops! Something went wrong. Try Again!") 
             }
           })
-        })  
+        }) 
+
+        //CALCULATE TOTAL NODES
+        $("body, html").on("change", "#splitSize, #depthSize", function(){
+            var s = splitInput.val();
+            var d = depthInput.val();
+            d++;
+            var potenza = Math.pow(s, d)
+            var totale =  (potenza - 1)/(s-1);
+
+            Ntotal.text(totale);
+            totalInput.val(totale);
+        }) 
 
 
 

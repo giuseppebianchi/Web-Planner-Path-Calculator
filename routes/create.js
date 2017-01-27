@@ -2,12 +2,24 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose')
 var debug = require('debug')('ppc:server');
-var mongoOp = require("../models/mongo");
+
+var Tree = require("../models/tree");
+var Nodo = require("../models/node");
 
 var router = express.Router();
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({"extended" : false}));
+
+//Connect to Mongoose
+mongoose.createConnection('mongodb://localhost:27017/ppc', {
+  server: {
+    socketOptions: {
+      socketTimeoutMS: 0,
+      connectTimeoutMS: 0
+    }
+  }
+});
 
 
 //This function generates floating-point between two numbers low (inclusive) and high (exclusive) ([low, high))
@@ -20,34 +32,100 @@ var randomInt = function(low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 };
 
-//Connect to Mongoose
-mongoose.createConnection('mongodb://localhost:27017/ppc');
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-  // we're connected!
-});
+//GENERATE ATTRIBUTES VALUES
+function setAttributesValues(list){
+	//list is the array of attributes
+
+	var attributesValues = [];
+
+	for (var i = 0, len = list.length; i < len; i++) {
+		var obj = {};
+		if(list[i].isInteger == 1){
+			obj.value = randomInt(list[i].k, list[i].n);
+		}else{
+			obj.value = randomInt(list[i].k, list[i].n);
+		}
+		obj.name = list[i].name
+		attributesValues.push(obj)
+	}
+
+	return attributesValues;
+}
+
+//var nodes = [];
+var anchestors = [];
+var index = 0;
+var buildTree = function buildTreeRecursive(key, albero, split, depth, ant, k){
+	var node = {
+		"seq_number": key,
+		"tree_id": albero.id,
+		"name": "Vertex_" + key,
+		"level": k,
+		"attributes": setAttributesValues(albero.vertecesAttributeList),
+		"edge": {
+			"id_edge": "edge_" + key,
+			"attributes": setAttributesValues(albero.edgesAttributeList),
+
+		},
+		"ancestors": ant.slice(0)
+	}
+	//simulate insert
+	//nodes.push(node); index++;
+
+	//INSERT NODE
+	//nodes.push(node);
+	Nodo.createNode(node, function(err, data){
+		if(err){
+			throw err;
+			//annullare operazione e cancellare l'albero appena inserito
+		}
+		
+		debug(data)
+
+		index++;
+		
+		//CASO FOGLIA
+		if (k == depth){
+			if(index == albero.total){
+				console.timeEnd("perf")
+			}
+			return;
+	    }
+	
+		//CASO FIGLI
+		delete node.anchestors;
+		//anchestors.unshift(node)
+		anchestors.push(node)
+		for(var i = 0; i < split; i++){
+			buildTreeRecursive(index, albero, split, depth, anchestors, k+1)
+			if(i == split-1){
+				anchestors.pop();
+				//anchestors.shift()
+	        }
+		}
+		})
+
+	
+}
 
 router.post("/",function(req,res){
-	//da spostare su client
-	var totale = Math.pow(2, req.body.depthSize+1) - 1;
-	//costruzione albero
-	var tree = {
+	console.time("perf")
+	//NEW TREE
+	var t = {
 		"name": req.body.nameTree,
 		"splitSize": req.body.splitSize,
 		"depthSize": req.body.depthSize,
-		"total": totale,
+		"total": req.body.total,
 		"creation": new Date(),
 		"lastOperation": null
 	};
 
+
 	var vertecesAttributeList = [], edgesAttributeList = [];
 	var isIntegerV = JSON.parse(req.body['isIntegerV[]']);
 	var isIntegerE = JSON.parse(req.body['isIntegerE[]']);
-	
-	debug(tree.name)
 
-	//ATTRIBUTE FOR NODES
+	//ATTRIBUTES FOR NODES
 	for (var i = 0, len = req.body['vertexAttrName[]'].length; i < len; i++) {
 		var temp = {};
 		temp.name = req.body['vertexAttrName[]'][i];
@@ -61,7 +139,7 @@ router.post("/",function(req,res){
 
 	}
 
-	//ATTRIBUTE FOR EDGES
+	//ATTRIBUTES FOR EDGES
 	for (var i = 0, len = req.body['edgeAttrName[]'].length; i < len; i++) {
 		var temp = {};
 		temp.name = req.body['edgeAttrName[]'][i];
@@ -75,15 +153,26 @@ router.post("/",function(req,res){
 
 	}
 
-	tree.vertecesAttributeList = vertecesAttributeList;
-	tree.edgesAttributeList = edgesAttributeList;
+	t.vertecesAttributeList = vertecesAttributeList;
+	t.edgesAttributeList = edgesAttributeList;
 
-	//CREATE NODES
-	
+	//INSERT TREE
+	Tree.createTree(t, function(err, data){
+		if(err){
+			throw err;
+		}
+		t.id = data._id;
+		//CREATE NODES
+		buildTree(0, t, t.splitSize, t.depthSize, [], 0);
+		res.json("ok");
+	})
 
-    res.json(tree);
+
+    //res.json(nodes);
     //res.json("ok");
 });
+
+
 
 /* GET users listing. 
 router.get('/', function(req, res, next) {

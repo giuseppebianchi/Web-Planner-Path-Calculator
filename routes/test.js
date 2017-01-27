@@ -1,14 +1,30 @@
 var express = require('express');
 var bodyParser = require('body-parser');
-
+var mongoose = require('mongoose')
 var app = express();
 var router = express.Router();
+var Tree = require("../models/tree");
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({"extended" : false}));
+var db = mongoose.connection;
 
-router.get("/",function(req,res){
-    res.json({"error" : false,"message" : "Hello World"});
+router.get("/trees",function(req,res){
+    Tree.getTrees(function(err, trees){
+    	if(err){
+    		throw err;
+    	}
+    	res.json(trees)
+    })
+});
+
+router.get("/trees/:id",function(req,res){
+    Tree.getTreeById(req.params.id, function(err, tree){
+    	if(err){
+    		throw err;
+    	}
+    	res.json(tree)
+    })
 });
 
 /* GET users listing. 
