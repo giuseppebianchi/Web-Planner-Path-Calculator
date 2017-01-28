@@ -19,7 +19,7 @@ var nodeSchema = new Schema({
 
 
 // create model if not exists.
-var Node = mongoose.model('NodeModel', nodeSchema);
+var Node = mongoose.model('Node', nodeSchema);
 
 // make this available to our users in our Node applications
 module.exports = Node;
@@ -30,6 +30,10 @@ module.exports.createNode = function(nodo, callback){
 
 	//INSERT() is faster than create
 	Node.collection.insert(nodo, callback)
+}
+
+module.exports.initializeBulk = function(){
+	return Node.collection.initializeUnorderedBulkOp();
 }
 
 // GET NODE BY SEQ NUMBER

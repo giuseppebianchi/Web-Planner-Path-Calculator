@@ -8,6 +8,8 @@ var Nodo = require("../models/node");
 
 var router = express.Router();
 
+var anchestors = [], index = 0, node = {}, inserted = 0;
+
 //Connect to Mongoose
 mongoose.createConnection('mongodb://localhost:27017/ppc', {
   server: {
@@ -18,20 +20,22 @@ mongoose.createConnection('mongodb://localhost:27017/ppc', {
   }
 });
 
+//var bulk = mongoose.connection.db.collection('nodes').initializeUnorderedBulkOp();
+
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({"extended" : false}));
 
 //This function generates floating-point between two numbers low (inclusive) and high (exclusive) ([low, high))
 var random = function(low, high) {
 	var number = Math.random() * (high - low) + low;
-	console.log(number, low, high)
+	//console.log(number, low, high)
     return parseFloat(number).toFixed(2);
 };
 
 //This function generates random integer between two numbers low (inclusive) and high (exclusive) ([low, high))
 var randomInt = function(low, high) {
 	var number = Math.floor(Math.random() * (high - low) + low)
-	console.log(number, low, high)
+	//console.log(number, low, high)
     return number;
 };
 
@@ -54,64 +58,14 @@ function setAttributesValues(list){
 	return attributesValues;
 }
 
-
-//BUILDTREE FUNCTION
-//var nodes = [];
-var anchestors = [];
-var index = 0;
-var buildTree = function buildTreeRecursive(key, albero, split, depth, ant, k){
-	var node = {
-		"seq_number": key,
-		"tree_id": albero.id,
-		"name": "Vertex_" + key,
-		"level": k,
-		"attributes": setAttributesValues(albero.vertecesAttributeList),
-		"edge": {
-			"id_edge": "edge_" + key,
-			"attributes": setAttributesValues(albero.edgesAttributeList),
-
-		},
-		"ancestors": ant.slice(0)
-	}
-	//simulate insert
-	//nodes.push(node); index++;
-
-	//INSERT NODE
-	//nodes.push(node);
-	Nodo.createNode(node, function(err, data){
-		if(err){
-			throw err;
-			//annullare operazione e cancellare l'albero appena inserito
-		}
-		console.log(data.ops[0].seq_number)
-	})
-
-	index++;
-		
-	//CASO FOGLIA
-	if (k == depth){
-		return;
-	}
-
-	//CASO FIGLI
-	delete node.anchestors;
-	//anchestors.unshift(node)
-	anchestors.push(node)
-	for(var i = 0; i < split; i++){
-		buildTreeRecursive(index, albero, split, depth, anchestors, k+1)
-		if(i == split-1){
-			anchestors.pop();
-			//anchestors.shift()
-	    }
-	}
-	
-	
-}
-
 router.post("/",function(req,res){
 	console.time("perf")
+	console.time("perf2")
 	anchestors = [];
 	index = 0;
+	node = {};
+	inserted = 0;
+
 	//NEW TREE
 	var t = {
 		"name": req.body.nameTree,
@@ -180,6 +134,7 @@ router.post("/",function(req,res){
 		}
 		t.id = data._id;
 		//CREATE NODES
+		console.log("building tree...")
 		buildTree(0, t, t.splitSize, t.depthSize, [], 0);
 		res.json(t);
 		//res.json("ok");
@@ -190,6 +145,85 @@ router.post("/",function(req,res){
 });
 
 
+//BUILDTREE FUNCTION
+var buildTree = function buildTreeRecursive(key, albero, split, depth, ant, k){
+	node = {
+		"seq_number": key,
+		"tree_id": albero.id,
+		"name": "Vertex_" + key,
+		"level": k,
+		"attributes": setAttributesValues(albero.vertecesAttributeList),
+		"edge": {
+			"id_edge": "edge_" + key,
+			"attributes": setAttributesValues(albero.edgesAttributeList),
+
+		},
+		"ancestors": ant.slice(0)
+	}
+	//simulate insert
+	//nodes.push(node); index++;
+
+	//INSERT NODE
+	//nodes.push(node);
+	//console.log(node.seq_number)
+	//bulk.insert(node)
+	insertNode(node, albero.total)
+
+	index++;
+	//CASO FOGLIA
+	if (k == depth){
+		if(index == albero.total){
+			console.timeEnd("perf")
+			//bulk.execute(function(err, result) {
+		    //   if(err){
+		    //   	console.log(err)
+		    //   }
+		    //   console.timeEnd("perf2")
+		    //   console.log("inseriti")
+		    //   //db.close();
+		    // });
+		}
+		return;
+	}
+
+	//CASO FIGLI
+	delete node.anchestors;
+	//anchestors.unshift(node)
+	anchestors.push(node)
+	for(var i = 0; i < split; i++){
+		buildTreeRecursive(index, albero, split, depth, anchestors, k+1)
+		if(i == split-1){
+			anchestors.pop();
+			//anchestors.shift()
+	    }
+	}
+	
+	
+	
+}
+var insertNode = function(node, total){
+	console.log("chiamata: "+node.seq_number)
+	Nodo.createNode(node, function(err, data){
+		if(err){
+			console.log(err)
+			//throw err;
+			//annullare operazione e cancellare l'albero appena inserito
+		}
+		inserted++;
+		console.log("inserito: "+inserted)
+		if(inserted == total){
+			console.timeEnd("perf2")
+			//bulk.execute(function(err, result) {
+		    //   if(err){
+		    //   	console.log(err)
+		    //   }
+		    //   console.timeEnd("perf2")
+		    //   console.log("inseriti")
+		    //   //db.close();
+		    // });
+		}
+	})
+}
 
 /* GET users listing. 
 router.get('/', function(req, res, next) {
