@@ -1,9 +1,20 @@
 var express = require('express');
+var mongoose = require('mongoose');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+
+//Connect to Mongoose
+mongoose.connect('mongodb://localhost:27017/ppc', {
+  server: {
+    socketOptions: {
+      socketTimeoutMS: 0,
+      connectTimeoutMS: 0
+    }
+  }
+});
 
 //ROUTES
 var routes = require('./routes/index');

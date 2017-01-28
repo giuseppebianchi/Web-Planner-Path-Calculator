@@ -1,5 +1,5 @@
 var mongoose    =   require("mongoose");
-mongoose.connect('mongodb://localhost:27017/ppc');
+//mongoose.connect('mongodb://localhost:27017/ppc');
 // create instance of Schema
 var Schema =   mongoose.Schema;
 
@@ -26,7 +26,7 @@ module.exports = Node;
 
 // CREATE TREE
 module.exports.createNode = function(nodo, callback){
-	Node.create(nodo, callback)
+	Node.collection.insert(nodo, callback)
 }
 
 // GET NODE BY SEQ NUMBER

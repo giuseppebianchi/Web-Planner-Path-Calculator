@@ -8,9 +8,6 @@ var Nodo = require("../models/node");
 
 var router = express.Router();
 
-router.use(bodyParser.json());
-router.use(bodyParser.urlencoded({"extended" : false}));
-
 //Connect to Mongoose
 mongoose.createConnection('mongodb://localhost:27017/ppc', {
   server: {
@@ -21,6 +18,8 @@ mongoose.createConnection('mongodb://localhost:27017/ppc', {
   }
 });
 
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({"extended" : false}));
 
 //This function generates floating-point between two numbers low (inclusive) and high (exclusive) ([low, high))
 var random = function(low, high) {
@@ -32,7 +31,7 @@ var randomInt = function(low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 };
 
-//GENERATE ATTRIBUTES VALUES
+//GENERATE ATTRIBUTES VALUES FUNCTION
 function setAttributesValues(list){
 	//list is the array of attributes
 
@@ -52,6 +51,8 @@ function setAttributesValues(list){
 	return attributesValues;
 }
 
+
+//BUILDTREE FUNCTION
 //var nodes = [];
 var anchestors = [];
 var index = 0;
@@ -79,37 +80,34 @@ var buildTree = function buildTreeRecursive(key, albero, split, depth, ant, k){
 			throw err;
 			//annullare operazione e cancellare l'albero appena inserito
 		}
-		
-		debug(data)
+	})
 
-		index++;
+	index++;
 		
-		//CASO FOGLIA
-		if (k == depth){
-			if(index == albero.total){
-				console.timeEnd("perf")
-			}
-			return;
-	    }
+	//CASO FOGLIA
+	if (k == depth){
+		return;
+    }
+
+	//CASO FIGLI
+	delete node.anchestors;
+	//anchestors.unshift(node)
+	anchestors.push(node)
+	for(var i = 0; i < split; i++){
+		buildTreeRecursive(index, albero, split, depth, anchestors, k+1)
+		if(i == split-1){
+			anchestors.pop();
+			//anchestors.shift()
+        }
+	}
 	
-		//CASO FIGLI
-		delete node.anchestors;
-		//anchestors.unshift(node)
-		anchestors.push(node)
-		for(var i = 0; i < split; i++){
-			buildTreeRecursive(index, albero, split, depth, anchestors, k+1)
-			if(i == split-1){
-				anchestors.pop();
-				//anchestors.shift()
-	        }
-		}
-		})
-
 	
 }
 
 router.post("/",function(req,res){
 	console.time("perf")
+	anchestors = [];
+	index = 0;
 	//NEW TREE
 	var t = {
 		"name": req.body.nameTree,
