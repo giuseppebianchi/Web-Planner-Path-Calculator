@@ -80,6 +80,7 @@ var buildTree = function buildTreeRecursive(key, albero, split, depth, ant, k){
 			throw err;
 			//annullare operazione e cancellare l'albero appena inserito
 		}
+		console.log(data.ops[0].seq_number)
 	})
 
 	index++;
@@ -87,7 +88,7 @@ var buildTree = function buildTreeRecursive(key, albero, split, depth, ant, k){
 	//CASO FOGLIA
 	if (k == depth){
 		return;
-    }
+	}
 
 	//CASO FIGLI
 	delete node.anchestors;
@@ -98,13 +99,14 @@ var buildTree = function buildTreeRecursive(key, albero, split, depth, ant, k){
 		if(i == split-1){
 			anchestors.pop();
 			//anchestors.shift()
-        }
+	    }
 	}
 	
 	
 }
 
 router.post("/",function(req,res){
+	console.log(req.body)
 	console.time("perf")
 	anchestors = [];
 	index = 0;
@@ -124,6 +126,10 @@ router.post("/",function(req,res){
 	var isIntegerE = JSON.parse(req.body['isIntegerE[]']);
 
 	//ATTRIBUTES FOR NODES
+	if( typeof req.body['vertexAttrName[]'] === 'string' ) {
+		console.log("qui")
+    	req.body['vertexAttrName[]'] = [ req.body['vertexAttrName[]'] ];
+	}
 	for (var i = 0, len = req.body['vertexAttrName[]'].length; i < len; i++) {
 		var temp = {};
 		temp.name = req.body['vertexAttrName[]'][i];
@@ -138,6 +144,10 @@ router.post("/",function(req,res){
 	}
 
 	//ATTRIBUTES FOR EDGES
+	if( typeof req.body['edgeAttrName[]'] === 'string' ) {
+		console.log("qua")
+    	req.body['edgeAttrName[]'] = [ req.body['edgeAttrName[]'] ];
+	}
 	for (var i = 0, len = req.body['edgeAttrName[]'].length; i < len; i++) {
 		var temp = {};
 		temp.name = req.body['edgeAttrName[]'][i];
@@ -162,11 +172,11 @@ router.post("/",function(req,res){
 		t.id = data._id;
 		//CREATE NODES
 		buildTree(0, t, t.splitSize, t.depthSize, [], 0);
-		res.json("ok");
+		//res.json("ok");
 	})
 
 
-    //res.json(nodes);
+    res.json(t);
     //res.json("ok");
 });
 

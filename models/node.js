@@ -26,6 +26,9 @@ module.exports = Node;
 
 // CREATE TREE
 module.exports.createNode = function(nodo, callback){
+	//Node.create(nodo, callback)
+
+	//INSERT() is faster than create
 	Node.collection.insert(nodo, callback)
 }
 
