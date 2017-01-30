@@ -2,7 +2,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose')
 var debug = require('debug')('ppc:server');
-
+var async = require("async");
 var Tree = require("../models/tree");
 var Nodo = require("../models/node");
 
@@ -12,10 +12,11 @@ var anchestors = [], index = 0, node = {}, inserted = 0;
 
 //Connect to Mongoose
 mongoose.createConnection('mongodb://localhost:27017/ppc', {
-  server: {
-    socketOptions: {
-      socketTimeoutMS: 0,
-      connectTimeoutMS: 0
+	raw: true,
+  	server: {
+    	socketOptions: {
+      		socketTimeoutMS: 0,
+      		connectTimeoutMS: 0
     }
   }
 });
@@ -137,7 +138,6 @@ router.post("/",function(req,res){
 		console.log("building tree...")
 		buildTree(0, t, t.splitSize, t.depthSize, [], 0);
 		res.json(t);
-		//res.json("ok");
 	})
 
 
@@ -188,13 +188,13 @@ var buildTree = function buildTreeRecursive(key, albero, split, depth, ant, k){
 
 	//CASO FIGLI
 	delete node.anchestors;
-	//anchestors.unshift(node)
-	anchestors.push(node)
+	anchestors.unshift(node)
+	//anchestors.push(node)
 	for(var i = 0; i < split; i++){
 		buildTreeRecursive(index, albero, split, depth, anchestors, k+1)
 		if(i == split-1){
-			anchestors.pop();
-			//anchestors.shift()
+			//anchestors.pop();
+			anchestors.shift()
 	    }
 	}
 	

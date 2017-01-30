@@ -1,0 +1,63 @@
+<div class="container">
+<h2>Creating <span class="text-primary">{{name}}</span> tree...</h2>
+<h4 id="notify">You will be notified when the tree is ready</h4>
+<hr class="empty">
+<div class="progress">
+  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+    <span class="sr-only"></span>
+  </div>
+</div>
+<hr>
+	<div class="row">
+	    <div class="col-sm-6">
+	      <label>Name</label>
+	      <p>{{name}}</p>
+	      <label>Id</label>
+	      <p>{{id}}</p>
+	      <label>Number of Nodes</label>
+	      <p>{{total}}</p>
+	    </div>
+	    <div class="col-sm-6">
+	      <label>Split Size</label>
+	      <p>{{splitSize}}</p>
+	      <label>Depth</label>
+	      <p>{{depthSize}}</p>
+	    </div>
+    </div>
+    <hr>
+    <h4>Verteces Attributes</h4>
+    <table class="table table-stripped table-light">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th class="text-center">Value Generation Rule</th>
+      </tr>
+      </thead>
+      <tbody>
+      {{#vertecesAttributeList}}
+        <tr>
+          <td><strong>{{name}}</strong></td>
+          <td class="text-center"><span class="label label-primary">Random({{k}}-{{n}})</span></td>
+        </tr>
+       {{/vertecesAttributeList}}
+      </tbody>
+    </table>
+    <hr>
+    <h4>Edges Attributes</h4>
+    <table class="table table-stripped table-light">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th class="text-center">Value Generation Rule</th>
+      </tr>
+      </thead>
+      <tbody>
+       {{#edgesAttributeList}}
+        <tr>
+          <td><strong>{{name}}</strong></td>
+          <td class="text-center"><span class="label label-primary">Random({{k}}-{{n}})</span></td>
+        </tr>
+        {{/edgesAttributeList}}
+      </tbody>
+	</table>
+</div>

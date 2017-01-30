@@ -49,12 +49,35 @@ hr.empty{
 	background:  #337ab7;
 	color: white;
 }
-
+.disabled, .btn[disabled], fieldset[disabled] .btn{
+    pointer-events: none;
+    cursor: default;
+}
+.modal .panel-body{
+    padding:  0;
+}
+.modal .table{
+    margin-bottom: 5px;
+}
+.panel-title{
+    color:  #000;
+}
+.modal .table>thead:first-child>tr:first-child>th{
+    padding-left: 15px;
+}
+.modal .table>tbody>tr>td:first-child{
+    padding-left: 15px;
+}
 
 
 /* TIMELINE CSS */
 .timeline-entry img {
     vertical-align: middle;
+}
+
+.timeline-entry .table>tbody>tr>td{
+    border-bottom: 1px solid #ddd;
+    border-top:  none;
 }
 
 .timeline-entry .img-responsive {
@@ -326,13 +349,19 @@ hr.empty{
                     }
 
                 .timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h2 {
-                    font-size: 16px;
+                    font-size: 22px;
                     margin-bottom: 10px;
+                    color:  #000;
                 }
 
-                    .timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h2 a {
-                        color: #303641;
-                    }
+                .timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h4{
+                    font-size: 14px;
+                    margin-bottom: 10px;
+                    color:  #999;
+                }
+                .timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h4 strong{
+                    color:  #000;
+                }
 
                     .timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h2 span {
                         -webkit-opacity: .6;

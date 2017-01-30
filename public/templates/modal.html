@@ -1,44 +1,34 @@
-<h2 class="treeDetailsName">Name 1</h2>
-            <div class="row">
-            <div class="col-sm-6">
-              <label>Id</label>
-              <p>001</p>
-              <label>Split Size</label>
-              <p>2</p>
-              <label>Depth</label>
-              <p>17</p>
-              <label>Nodes</label>
-              <p>324523523</p>
-            </div>
-            <div class="col-sm-6">
-              <label>Time Calculation</label>
-              <p>23452 s</p>
-              <label>Last Operation</label>
-              <p>11/03/2017</p>
-              <label>Creation</label>
-              <p>11/03/2017</p>
-            </div>
-            </div>
-            <hr>
-            <h4>Calculate Path</h4>
-            <div class="row">
-                <div class="col-sm-6">
-                  <div class="form-group">
-                      <label>Source Node</label>
-                      <input type="text" class="form-control input-validation-modal" placeholder="Insert a Node" name="source-node">
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                <div class="form-group">
-                <label>Destination Node</label>
-                  <select class="form-control" name="destination Node"><option disabled>Select Destination Node</option></select>
-                  </div>
-                </div>
-              </div>
-            <button type="button" class="btn btn-success btn-lg" id="calculatePathButton">Start</button>
-            <hr>
-            <h4>Verteces Attributes</h4>
-            <table class="table table-stripped table-light">
+<h2 class="treeDetailsName">{{name}}</h2>
+<hr>
+<div class="row">
+<div class="col-sm-6">
+  <label>Id</label>
+  <p>{{_id}}</p>
+  <label>Split Size</label>
+  <p>{{splitSize}}</p>
+  <label>Depth</label>
+  <p>{{depthSize}}</p>
+</div>
+<div class="col-sm-6">
+  <label>Nodes</label>
+  <p>{{total}}</p>
+  <label>Creation</label>
+  <p>{{creation}}</p>
+  <label>Creation Time</label>
+  <p>{{creation_time}}3453 s</p>
+</div>
+</div>
+<hr>
+<div class="panel-group" id="accordion" aria-multiselectable="true">
+  <div class="panel panel-default" style="margin-bottom: 15px">
+    <div class="panel-heading" role="tab" id="headingOne">
+    <a role="button" data-toggle="collapse" href="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+      <h4 class="panel-title">Verteces Attributes <span class="pull-right badge">{{vertecesAttributeList.length}}</span></h4>
+      </a>
+    </div>
+    <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+      <div class="panel-body">
+        <table class="table table-stripped table-light">
               <thead>
               <tr>
                 <th>Name</th>
@@ -46,33 +36,68 @@
               </tr>
               </thead>
               <tbody>
+              {{#vertecesAttributeList}}
                 <tr>
-                  <td><strong>PTime</strong></td>
-                  <td class="text-center"><span class="label label-primary">Random(1-5)</span></td>
+                  <td><strong>{{name}}</strong></td>
+                  <td class="text-center"><span class="label label-primary">Random({{k}}-{{n}})</span></td>
                 </tr>
-                <tr>
-                  <td><strong>Cost</strong></td>
-                  <td class="text-center"><span class="label label-primary">Random(1-3)</span></td>
-                </tr>
+              {{/vertecesAttributeList}}
               </tbody>
             </table>
-            <hr>
-            <h4>Edges Attributes</h4>
-            <table class="table table-stripped table-light">
-              <thead>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-default">
+    <div class="panel-heading" role="tab" id="headingTwo">
+      <a class="collapsed" role="button" data-toggle="collapse" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+      <h4 class="panel-title">Edges Attributes <span class="pull-right badge">{{edgesAttributeList.length}}</span></h4>
+      </a>
+    </div>
+    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+      <div class="panel-body">
+        <table class="table table-stripped table-light">
+            <thead>
+            <tr>
+              <th>Name</th>
+              <th class="text-center">Value Generation Rule</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#edgesAttributeList}}
               <tr>
-                <th>Name</th>
-                <th class="text-center">Value Generation Rule</th>
+                <td><strong>{{name}}</strong></td>
+                <td class="text-center"><span class="label label-primary">Random({{k}}-{{n}})</span></td>
               </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>PTime</strong></td>
-                  <td class="text-center"><span class="label label-primary">Random(1-5)</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Cost</strong></td>
-                  <td class="text-center"><span class="label label-primary">Random(1-3)</span></td>
-                </tr>
-              </tbody>
-</table>
+            {{/edgesAttributeList}}
+            </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+<h3>Calculate Path</h3>
+<p>You can retrieve a vertex writing its sequence number. It can be between <strong>0</strong> and <strong>{{total}}</strong>.</p>
+<div class="row">
+    <div class="col-xs-6">
+      <form id="SelectNodeForm">
+        <div class="form-group">
+          <label>Source Node </label><span id="sourceNodeLevel"></span>
+          <input id="tree-id-input" type="hidden" name="tree-id-input" value="{{_id}}">
+          <input id="selected-node-number" type="number" class="form-control input-validation-modal" min="0" max="{{total}}" placeholder="Insert a Node" name="source-node">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="SelectNodeButton">Set Source Node</button>
+      </form>
+    </div>
+    <div class="col-xs-6">
+    <div class="form-group">
+    <label>Destination Node</label>
+      <select class="form-control" name="destination Node" id="destinationNodesSelect"><option disabled>Set the Source Node</option></select>
+      </div>
+    <button type="button" class="btn btn-success btn-block disabled" id="calculatePathButton">Calculate Path</button>
+    </div>
+    
+  </div>
+<hr class="empty">

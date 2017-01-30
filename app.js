@@ -20,6 +20,8 @@ mongoose.connect('mongodb://localhost:27017/ppc', {
 var routes = require('./routes/index');
 var test = require('./routes/test');
 var create = require('./routes/create');
+var trees = require('./routes/trees');
+var nodes = require('./routes/nodes');
 
 var app = express();
 
@@ -37,6 +39,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
 app.use('/create', create);
+app.use('/trees', trees);
+app.use('/nodes', nodes);
 app.use('/test', test);
 //app.use('/users', users);
 

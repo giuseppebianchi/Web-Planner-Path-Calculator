@@ -32,22 +32,23 @@ module.exports.createNode = function(nodo, callback){
 	Node.collection.insert(nodo, callback)
 }
 
-module.exports.initializeBulk = function(){
-	return Node.collection.initializeUnorderedBulkOp();
-}
-
 // GET NODE BY SEQ NUMBER
-module.exports.getNodeByNumber = function(num, id_tree, callback){
-	Tree.find({
-		seq_number: num,
-		tree_id: id_tree
-	})
+module.exports.getNodeByNumber = function(query, callback){
+	Node.findOne({
+		seq_number: query.num,
+		tree_id: query.tree 
+	}, callback)
 }
 
 // GET NODE BY NAME
-module.exports.getNodeByName = function(name, id_tree, callback){
-	Tree.find({
-		name: name,
-		tree_id: id
-	})
+module.exports.getNodeByName = function(query, callback){
+	Node.findOne({
+		name: "Vertex_"+query.name,
+		tree_id: query.name
+	}, callback)
+}
+
+// GET NODE BY ID
+module.exports.getNodeById = function(id, callback){
+	Node.findById(id, callback)
 }

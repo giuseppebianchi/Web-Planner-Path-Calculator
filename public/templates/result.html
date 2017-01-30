@@ -3,40 +3,41 @@
       <li><a href="#">Home</a></li>
       <li><a href="#">Retrieve Tree</a></li>
       <li><a href="#">Calculate Path</a></li>
-      <li><a href="#">Name Tree</a></li>
+      <li><a href="#">{{name}}</a></li>
     </ol>
 </div>
 <div class="container">
-<h1>Calculated Path for:</h1>
-<h2 class="treeDetailsName">Name Tree 1</h2>
-<label>Id</label>
-<p>001</p>
+<h1>Calculated path for:</h1>
+<h2 class="treeDetailsName" style="text-decoration: underline">{{tree.name}}</h2>
+
+<p><strong>Id Tree: </strong> {{tree._id}}  /  <strong>Total Nodes: </strong>{{tree.total}}  /  <strong>SplitSize: </strong>{{tree.splitSize}}  /  <strong>DepthSize: </strong> {{tree.depthSize}}</p>
 <hr>
-<h2 class="treeDetailsName">Time: 98238 ms</h2>
+<h2 class="treeDetailsName">Time: {{performance}} ms</h2>
 <table class="table table-stripped table-inverse">
   <thead>
   <tr>
     <th>Name Attribute</th>
-    <th>Sum</th>
+    <th>Type</th>
+    <th>Calculated Sum</th>
   </tr>
   </thead>
   <tbody>
+  {{#attributes}}
     <tr>
-      <td><strong>PTime</strong></td>
-      <td><strong>12312</strong></td>
+      <td><strong>{{name}}</strong></td>
+      <td>{{#iftype}}{{type}}{{/iftype}}</td>
+      <td><strong>{{sum}}</strong></td>
     </tr>
-    <tr>
-      <td><strong>Cost</strong></td>
-      <td><strong>12312</strong></td>
-    </tr>
+  {{/attributes}}
   </tbody>
 </table>
 <hr>
-<h1>List of Vertices</h1>
+<h1>List of Vertices <span class="badge">{{total}}</span></h1>
+<p></p>
 	<div class="row">
     
         <div class="timeline-centered">
-
+        {{#source}}
         <article class="timeline-entry">
 
             <div class="timeline-entry-inner">
@@ -46,8 +47,9 @@
                 </div>
 
                 <div class="timeline-label">
-                    <h2><a href="#">#45234</a></h2>
-                    <table class="table table-stripped table-result">
+                    <h2>{{name}}</h2>
+                    <h4><strong>Id: </strong> {{_id}}  <strong> /  Level: </strong> {{level}}</h4>
+                    <table class="table table-stripped table-light">
                       <thead>
                       <tr>
                         <th>Name Attribute</th>
@@ -55,14 +57,12 @@
                       </tr>
                       </thead>
                       <tbody>
+                      {{#attributes}}
                         <tr>
-                          <td><strong>PTime</strong></td>
-                          <td><strong>12312</strong></td>
+                          <td><strong>{{name}}</strong></td>
+                          <td><strong>{{value}}</strong></td>
                         </tr>
-                        <tr>
-                          <td><strong>Cost</strong></td>
-                          <td><strong>12312</strong></td>
-                        </tr>
+                      {{/attributes}}
                       </tbody>
                     </table>
                     <!--<blockquote>Great place, feeling like in home.</blockquote>-->
@@ -72,7 +72,8 @@
             </div>
 
         </article>
-
+        {{/source}}
+    {{#nodes}}
 
         <article class="timeline-entry">
 
@@ -83,8 +84,9 @@
                 </div>
 
                 <div class="timeline-label">
-                    <h2><a href="#">#45234</a></h2>
-                    <table class="table table-stripped table-result">
+                    <h2>{{name}}</h2>
+                    <h4><strong>Id: </strong> {{_id}}  <strong> /  Level: </strong> {{level}}</h4>
+                    <table class="table table-stripped table-light">
                       <thead>
                       <tr>
                         <th>Name Attribute</th>
@@ -92,23 +94,24 @@
                       </tr>
                       </thead>
                       <tbody>
+                      {{#attributes}}
                         <tr>
-                          <td><strong>PTime</strong></td>
-                          <td><strong>12312</strong></td>
+                          <td><strong>{{name}}</strong></td>
+                          <td><strong>{{value}}</strong></td>
                         </tr>
-                        <tr>
-                          <td><strong>Cost</strong></td>
-                          <td><strong>12312</strong></td>
-                        </tr>
+                      {{/attributes}}
                       </tbody>
                     </table>
+                    <!--<blockquote>Great place, feeling like in home.</blockquote>-->
+                    <!--<img src="http://themes.laborator.co/neon/assets/images/timeline-image-3.png" class="img-responsive img-rounded full-width">-->
                     
                 </div>
             </div>
 
         </article>
 
-
+    {{/nodes}}
+    {{#destinationNode}}
         <article class="timeline-entry" style="background: #fff">
 
             <div class="timeline-entry-inner">
@@ -116,9 +119,11 @@
                 <div class="timeline-icon bg-secondary">
                     <i class="entypo-flight"></i> B
                 </div>
+
                 <div class="timeline-label">
-                    <h2><a href="#">#45234</a></h2>
-                    <table class="table table-stripped table-result">
+                    <h2>{{name}}</h2>
+                    <h4><strong>Id: </strong> {{_id}}  <strong> / Level: </strong> {{level}}</h4>
+                    <table class="table table-stripped table-light">
                       <thead>
                       <tr>
                         <th>Name Attribute</th>
@@ -126,22 +131,22 @@
                       </tr>
                       </thead>
                       <tbody>
+                      {{#attributes}}
                         <tr>
-                          <td><strong>PTime</strong></td>
-                          <td><strong>12312</strong></td>
+                          <td><strong>{{name}}</strong></td>
+                          <td><strong>{{value}}</strong></td>
                         </tr>
-                        <tr>
-                          <td><strong>Cost</strong></td>
-                          <td><strong>12312</strong></td>
-                        </tr>
+                      {{/attributes}}
                       </tbody>
                     </table>
+                    <!--<blockquote>Great place, feeling like in home.</blockquote>-->
+                    <!--<img src="http://themes.laborator.co/neon/assets/images/timeline-image-3.png" class="img-responsive img-rounded full-width">-->
+                    
                 </div>
-
             </div>
 
         </article>
-
+    {{/destinationNode}}
     </div>
 
     

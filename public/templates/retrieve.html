@@ -13,35 +13,23 @@
         <tr>
          <th>Tree Name</th>
          <th>Id</th>
-         <th>Split Size</th>
-         <th>Depth</th>
-         <th>Nodes</th>
-         <th>Time Calculation</th>
-         <th>Last Operation</th>
-         <!--<th></th>-->
+         <th class="text-center">Split Size</th>
+         <th class="text-center">Depth</th>
+         <th class="text-center">Nodes</th>
+         <th>Creation Time</th>
+         <th>Creation</th>
        <tr>
        </thead>
-       <tbody>
-       <tr class="showTree" data-tree-id="{{id}}">
-         <td>Name 1</td>
-         <td>234</td>
-         <td>3</td>
-         <td>5</td>
-         <td>23452345</td>
-         <td>PTime</td>
-         <td>Cost</td>
-         <!--<td><a href="#" class="text-danger">Delete</a></td>-->
-       </tr>
-       <tr class="showTree" data-tree-id="{{id}}">
-         <td>Name 2</td>
-         <td>004</td>
-         <td>2</td>
-         <td>15</td> 
-         <td>2345332452</td>
-         <td>PTime</td>
-         <td>Cost</td>
-         <!--<td><a href="#" class="text-danger">Delete</a></td>-->
-       </tr>
+       <tbody id="treesBox">
+       
        </tbody>
       </table>
-    </div>
+      <hr>
+      <nav aria-label="...">
+      <ul class="pager">
+        <li class="previous disabled"><a href="#"><span aria-hidden="true">&larr;</span></a></li>
+        <li><strong class="text-primary">{{count}}</strong> results</li>
+        <li class="next disabled"><a href="#"><span aria-hidden="true">&rarr;</span></a></li>
+      </ul>
+    </nav>
+</div>

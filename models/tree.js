@@ -30,9 +30,14 @@ module.exports.createTree = function(albero, callback){
 }
 
 // GET TREES
-module.exports.getTrees = function(callback, limit){
+module.exports.getTrees = function(callback){
 	Tree.find(callback)
 	//Tree.find(callback).limit(limit)
+}
+
+// GET TREES
+module.exports.countTrees = function(callback){
+    Tree.count(callback)
 }
 
 // GET TREE BY ID
