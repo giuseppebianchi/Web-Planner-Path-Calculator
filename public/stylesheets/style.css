@@ -27,6 +27,14 @@ hr.empty{
     margin: 0;
 }
 
+.text-success {
+    color: #5cb85c;
+}
+
+.text-primary {
+    color: #21a9e1;
+}
+
 .treeDetailsName{
 	margin: 10px 0 20px;
 	font-weight: 400;

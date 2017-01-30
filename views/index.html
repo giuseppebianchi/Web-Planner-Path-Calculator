@@ -93,7 +93,7 @@ A graph is used to model different manufacturing processes, for example a Tree c
         var currentView = "Home";
         var form, treesBox, pageValue, pageItem, limit = 50;
         //FOR CREATE PAGE
-        var Ntotal, totalInput, splitInput, depthInput, destinationNodesSelect, calculatePathButton;
+        var Ntotal, totalInput, splitInput, depthInput, destinationNodesSelect, calculatePathButton, sourceNodeLevel;
 
         //LOAD TEMPLATE
         $.get("/templates/attributeRow.html", function(t){
@@ -173,6 +173,7 @@ A graph is used to model different manufacturing processes, for example a Tree c
             modalContent.html(Mustache.render(modalTemplate, data))
             destinationNodesSelect = $("#destinationNodesSelect");
             calculatePathButton = $("#calculatePathButton");
+            sourceNodeLevel = $("#sourceNodeLevel");
             deleteButton.data("id", data._id)
             modal.modal('show');
           });
@@ -195,6 +196,7 @@ A graph is used to model different manufacturing processes, for example a Tree c
             })
             destinationNodesSelect.html(options).focus()
             calculatePathButton.removeClass("disabled")
+            sourceNodeLevel.text(" / Level: " + data.level)
           });
             
         });
@@ -243,19 +245,22 @@ A graph is used to model different manufacturing processes, for example a Tree c
             })
             //iterate each anchestor to sum attributes' values
             $.each(NODO.ancestors, function(k, node){
+              //vertece attributes
               $.each(node.attributes, function(k, attribute){
                 attributes[attribute.name].sum += parseFloat(attribute.value);
               })
-              if(node.edge.seq_number != 0){
-                $.each(node.edge.attributes, function(k, attribute){
-                  attributes[attribute.name].sum += parseFloat(attribute.value);
-                })
-              }
-              //this operation is used to prepare the verteces to show
+
+
+              //this operation is used to check if the current node is the destination node
+              // and to prepare the verteces to show in result page
               if(node.seq_number == results.destination){
                 results.destinationNode = node;
                 return false;
               }else{
+                //if is not destination node, sum egdes nodes too
+                $.each(node.edge.attributes, function(k, attribute){
+                  attributes[attribute.name].sum += parseFloat(attribute.value);
+                })
                 results.nodes.push(node)
               }
             })
