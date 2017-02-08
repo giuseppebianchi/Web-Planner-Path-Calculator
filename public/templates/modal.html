@@ -79,14 +79,14 @@
 
 <hr>
 <h3>Calculate Path</h3>
-<p>You can retrieve a vertex writing its sequence number. It can be between <strong>0</strong> and <strong>{{total}}</strong>.</p>
+<p>You can retrieve a vertex writing its sequence number. It can be between <strong>1</strong> and <strong>{{total0}}</strong>.</p>
 <div class="row">
     <div class="col-xs-6">
       <form id="SelectNodeForm">
         <div class="form-group">
           <label>Source Node </label><span id="sourceNodeLevel"></span>
           <input id="tree-id-input" type="hidden" name="tree-id-input" value="{{_id}}">
-          <input id="selected-node-number" type="number" class="form-control input-validation-modal" min="0" max="{{total}}" placeholder="Insert a Node" name="source-node">
+          <input id="selected-node-number" type="number" class="form-control input-validation-modal" min="1" max="{{total0}}" placeholder="Insert a Node" name="source-node">
         </div>
         <button type="submit" class="btn btn-primary btn-block" id="SelectNodeButton">Set Source Node</button>
       </form>

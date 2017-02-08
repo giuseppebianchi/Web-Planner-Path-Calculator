@@ -1,6 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose')
+var debug = require('express');
 var app = express();
 var router = express.Router();
 
@@ -18,7 +19,8 @@ router.get("/search/sequence",function(req,res){
         if(err){
             throw err;
         }
-        res.json(node)
+        res.json(node[0])
+        debug(node)
     })
 });
 
@@ -27,16 +29,18 @@ router.get("/search/name",function(req,res){
         if(err){
             throw err;
         }
-        res.json(node)
+        res.json(node[0])
+        debug(node)
     })
 });
 
 router.get("/:id",function(req,res){
     Nodo.getNodeById(req.params.id, function(err, tree){
     	if(err){
-    		throw err;
-    	}
-    	res.json(tree)
+            throw err;
+        }
+        res.json(node[0])
+        debug(node)
     })
 });
 

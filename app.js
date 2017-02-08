@@ -5,13 +5,16 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+const v8 = require('v8');
+//v8.setFlagsFromString('--max_old_space_size=4096');
 
 //Connect to Mongoose
-mongoose.connect('mongodb://localhost:27017/ppc', {
+mongoose.connect('mongodb://localhost:27017/ppc?socketTimeoutMS=60000000&connectTimeoutMS=60000000&poolSize=3&journal=false', {
+  journal: false,
   server: {
     socketOptions: {
-      socketTimeoutMS: 0,
-      connectTimeoutMS: 0
+      connectionTimeoutMS: 600000000,
+      socketTimeoutMS: 600000000
     }
   }
 });

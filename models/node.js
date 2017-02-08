@@ -5,6 +5,7 @@ var Schema =   mongoose.Schema;
 
 //create Node schema
 var nodeSchema = new Schema({
+	//_id: Schema.Types.ObjectId,
 	tree_id: Schema.Types.ObjectId,
 	seq_number: Number,
 	name: String,
@@ -17,6 +18,7 @@ var nodeSchema = new Schema({
 	ancestors: Array
 })
 
+nodeSchema.index({seq_number: 1, tree_id: 1}, {unique: true});
 
 // create model if not exists.
 var Node = mongoose.model('Node', nodeSchema);
@@ -34,10 +36,21 @@ module.exports.createNode = function(nodo, callback){
 
 // GET NODE BY SEQ NUMBER
 module.exports.getNodeByNumber = function(query, callback){
-	Node.findOne({
+	// Node.findOne({
+	// 	seq_number: query.num,
+	// 	tree_id: query.tree 
+	// }, callback)
+
+	//this query is faster
+	Node.find({
 		seq_number: query.num,
 		tree_id: query.tree 
-	}, callback)
+	})
+	.limit(1)
+	.lean()
+	.exec(function(err, results){
+		callback(err, results);
+	})
 }
 
 // GET NODE BY NAME

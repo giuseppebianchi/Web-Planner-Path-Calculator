@@ -8,15 +8,15 @@ var Nodo = require("../models/node");
 
 var router = express.Router();
 
-var anchestors = [], index = 0, node = {}, inserted = 0;
+var ancestors = [], nodes = [], index = 0, node = {}, inserted = 0;
 
 //Connect to Mongoose
-mongoose.createConnection('mongodb://localhost:27017/ppc', {
-	raw: true,
-  	server: {
-    	socketOptions: {
-      		socketTimeoutMS: 0,
-      		connectTimeoutMS: 0
+mongoose.createConnection('mongodb://localhost:27017/ppc?socketTimeoutMS=60000000&connectTimeoutMS=60000000&poolSize=3&journal=false', {
+  journal: false,
+  server: {
+    socketOptions: {
+      connectionTimeoutMS: 600000000,
+      socketTimeoutMS: 600000000
     }
   }
 });
@@ -58,13 +58,20 @@ function setAttributesValues(list){
 
 	return attributesValues;
 }
-
+router.get("/test",function(req,res){
+	console.time("perf2")
+	//res.json(mongoose.connection.server);
+	//simulateMillions();
+	simulateInsertR(0);
+	//simulateInsert();
+})
 router.post("/",function(req,res){
 	console.time("perf")
 	console.time("perf2")
-	anchestors = [];
+	ancestors = [];
 	index = 0;
 	node = {};
+	nodes.length = 0;
 	inserted = 0;
 
 	//NEW TREE
@@ -133,11 +140,14 @@ router.post("/",function(req,res){
 		if(err){
 			throw err;
 		}
+		//console.log(data)
 		t.id = data._id;
+		res.json(t);
+
 		//CREATE NODES
 		console.log("building tree...")
-		buildTree(0, t, t.splitSize, t.depthSize, [], 0);
-		res.json(t);
+		buildTree(0, t, t.splitSize, t.depthSize, 0, setAttributesValues(t.vertecesAttributeList), setAttributesValues(t.edgesAttributeList));
+
 	})
 
 
@@ -146,83 +156,77 @@ router.post("/",function(req,res){
 
 
 //BUILDTREE FUNCTION
-var buildTree = function buildTreeRecursive(key, albero, split, depth, ant, k){
-	node = {
-		"seq_number": key,
-		"tree_id": albero.id,
-		"name": "Vertex_" + key,
-		"level": k,
-		"attributes": setAttributesValues(albero.vertecesAttributeList),
-		"edge": {
-			"id_edge": "edge_" + key,
-			"attributes": setAttributesValues(albero.edgesAttributeList),
+var buildTree = function buildTreeRecursive(key, albero, split, depth, k, vatt, eatt){
+	//console.log("chiamata ricorsiva: "+ key + " - nodes: " + nodes.length)
+	if(nodes.length == 20000){
+		console.log("chiamata ricorsiva: "+ key)
+		Nodo.collection.insert(nodes.slice(0), {  writeConcern: { wtimeout: 0 }, ordered: false }, function(err){
 
-		},
-		"ancestors": ant.slice(0)
+			if(err){
+				throw err;
+			}
+			inserted++;
+			console.log("inserito: " + inserted)
+
+		})
+	nodes.length = 0;
+	}else{
+		nodes.push({
+			"seq_number": key,
+			"tree_id": albero.id,
+			"name": "Vertex_" + key,
+			"level": k,
+			"attributes": vatt.slice(0),
+			"edge": {
+				"id_edge": "edge_" + key,
+				"attributes": eatt.slice(0),
+
+			},
+			"ancestors": ancestors.slice(0)
+		})
 	}
-	//simulate insert
-	//nodes.push(node); index++;
-
-	//INSERT NODE
-	//nodes.push(node);
-	//console.log(node.seq_number)
-	//bulk.insert(node)
-	insertNode(node, albero.total)
+	
 
 	index++;
 	//CASO FOGLIA
 	if (k == depth){
 		if(index == albero.total){
 			console.timeEnd("perf")
-			//bulk.execute(function(err, result) {
-		    //   if(err){
-		    //   	console.log(err)
-		    //   }
-		    //   console.timeEnd("perf2")
-		    //   console.log("inseriti")
-		    //   //db.close();
-		    // });
+			Nodo.collection.insert(nodes.slice(0), {  writeConcern: { wtimeout: 0 }, ordered: false }, function(err){
+			if(err){
+				throw err;
+			}
+			inserted++;
+			console.log("last: "+ data.ops[0].seq_number + " - n: " + inserted)
+			console.timeEnd("perf2")
+			})
+
 		}
 		return;
 	}
 
 	//CASO FIGLI
-	delete node.anchestors;
-	anchestors.unshift(node)
-	//anchestors.push(node)
+	//delete node.ancestors;
+	//ancestors.push(node)
+	ancestors.unshift({
+		"seq_number": key,
+		"name": "Vertex_" + key,
+		"level": k,
+		"attributes": vatt.slice(0),
+		"edge": {
+			"id_edge": "edge_" + key,
+			"attributes": eatt.slice(0)
+		}
+
+	});
 	for(var i = 0; i < split; i++){
-		buildTreeRecursive(index, albero, split, depth, anchestors, k+1)
+		buildTreeRecursive(index, albero, split, depth, k+1, setAttributesValues(albero.vertecesAttributeList), setAttributesValues(albero.edgesAttributeList))
 		if(i == split-1){
-			//anchestors.pop();
-			anchestors.shift()
+			//ancestors.pop();
+			ancestors.shift()
 	    }
 	}
-	
-	
-	
-}
-var insertNode = function(node, total){
-	console.log("chiamata: "+node.seq_number)
-	Nodo.createNode(node, function(err, data){
-		if(err){
-			console.log(err)
-			//throw err;
-			//annullare operazione e cancellare l'albero appena inserito
-		}
-		inserted++;
-		console.log("inserito: "+inserted)
-		if(inserted == total){
-			console.timeEnd("perf2")
-			//bulk.execute(function(err, result) {
-		    //   if(err){
-		    //   	console.log(err)
-		    //   }
-		    //   console.timeEnd("perf2")
-		    //   console.log("inseriti")
-		    //   //db.close();
-		    // });
-		}
-	})
+
 }
 
 /* GET users listing. 

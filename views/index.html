@@ -156,6 +156,7 @@ A graph is used to model different manufacturing processes, for example a Tree c
         //GET TREES
         var getTrees = function(page, limit){
           $.get("/trees", {page: page, limit: limit}, function(data){
+            console.log(data)
             treesBox.html(Mustache.render(treeRowTemplate, data))
             pageValue = data.page;
           });
@@ -163,11 +164,13 @@ A graph is used to model different manufacturing processes, for example a Tree c
 
 
         //GET TREE AND OPEN MODAL
-        $("body, html").on("click", ".showTree", function(e){
+        $("body").on("click", ".showTree", function(e){
           e.preventDefault();
           e.stopPropagation();
           var id = $(this).data("tree-id")
           $.get("/trees/" + id, function(data){
+            //total0 is the max seq_number
+            data.total0 = data.total-1;
             //TREE is a global variable
             TREE = data;
             modalContent.html(Mustache.render(modalTemplate, data))
@@ -181,7 +184,7 @@ A graph is used to model different manufacturing processes, for example a Tree c
         });
 
         //GET NODE
-        $("body, html").on("submit", "#SelectNodeForm", function(e){
+        $("body").on("submit", "#SelectNodeForm", function(e){
           e.preventDefault();
           e.stopPropagation();
           
@@ -197,12 +200,13 @@ A graph is used to model different manufacturing processes, for example a Tree c
             destinationNodesSelect.html(options).focus()
             calculatePathButton.removeClass("disabled")
             sourceNodeLevel.text(" / Level: " + data.level)
-          });
-            
+          });  
         });
 
+
+
         //CALCULATE PATH AND LOAD RESULT PAGE
-        $("body, html").on("click", "#calculatePathButton", function(e){
+        $("body").on("click", "#calculatePathButton", function(e){
             e.preventDefault()
             e.stopPropagation();
             console.time("performance")
@@ -243,6 +247,7 @@ A graph is used to model different manufacturing processes, for example a Tree c
               }
               attributes[attribute.name] = a;
             })
+
             //iterate each anchestor to sum attributes' values
             $.each(NODO.ancestors, function(k, node){
               //vertece attributes
@@ -282,7 +287,7 @@ A graph is used to model different manufacturing processes, for example a Tree c
         })
 
         //ADD VERTEX ATTRIBUTE
-        $("body, html").on("click", "#addAttrVert", function(e){
+        $("body").on("click", "#addAttrVert", function(e){
             e.stopPropagation();
             var list = $(".input-validation-vertex")
             var validation = true;
@@ -310,7 +315,7 @@ A graph is used to model different manufacturing processes, for example a Tree c
           });
 
         //ADD EDGE ATTRIBUTE
-        $("body, html").on("click", "#addAttrEdge", function(e){
+        $("body").on("click", "#addAttrEdge", function(e){
           e.stopPropagation();
             var list = $(".input-validation-edge")
             var validation = true;
@@ -338,15 +343,15 @@ A graph is used to model different manufacturing processes, for example a Tree c
           });
 
         //REMOVE ERROR
-        $("body, html").on("focus", "input.input-error", function(){
+        $("body").on("focus", "input.input-error", function(){
           $(this).removeClass("input-error");
         })
 
         //SUBMIT BUILD TREE
-        $("body, html").on("click", "#buildTreeButton", function(e){
-          $(this).addCLass("disabled")
+        $("body").on("click", "#buildTreeButton", function(e){
           e.preventDefault();
           e.stopPropagation()
+          $(this).addClass("disabled")
 
           //VALIDATION FORM HERE
 
@@ -380,24 +385,27 @@ A graph is used to model different manufacturing processes, for example a Tree c
             //data: form.serialize().replace(/%5B%5D/g, '[]'),
             success: function(data){
               //LOAD CREATING TEMPLATE
-              content.html(Mustache.render(creatingTemplate, data))
-              currentView="creating";
+              //content.html(Mustache.render(creatingTemplate, data))
+              //currentView="creating";
             },
             error: function(err){
               console.log("Ops! Something went wrong. Try Again!") 
             }
           })
-          $(this).removeCLass("disabled")
+          $(this).removeClass("disabled")
         });
 
 
         //WEB SOCKET TO NOTIFY WHEN TREE IS READY
-
+        //<div class="alert alert-success" role="alert">...</div>
+        //<div class="alert alert-info" role="alert">...</div>
+        //<div class="alert alert-warning" role="alert">...</div>
+        //<div class="alert alert-danger" role="alert">...</div>
 
 
 
         //CALCULATE TOTAL NODES
-        $("body, html").on("change", "#splitSize, #depthSize", function(){
+        $("body").on("change", "#splitSize, #depthSize", function(){
             var s = splitInput.val();
             var d = depthInput.val();
             d++;
