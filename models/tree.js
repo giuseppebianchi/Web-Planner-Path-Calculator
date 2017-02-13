@@ -15,7 +15,14 @@ var treeSchema  = new Schema({
     	type: Date,
     	default: Date.now
     },
-    lastOperation: Date
+    creation_time: {
+        type: String,
+        default: "Building..."
+    },
+    ready: {
+        type: Number,
+        default: 0
+    }
 });
 
 // create model if not exists.
@@ -43,6 +50,10 @@ module.exports.countTrees = function(callback){
 // GET TREE BY ID
 module.exports.getTreeById = function(id, callback){
 	Tree.findById(id, callback)
+}
+// UPDATE CREATION TIME TREE 
+module.exports.updateTree = function(data, callback){
+    Tree.findOneAndUpdate({_id: data.id}, { $set: { creation_time: data.perf, ready: 1 } }, {new: true}, callback);
 }
 
 

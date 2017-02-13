@@ -19,6 +19,7 @@ router.get("/search/sequence",function(req,res){
         if(err){
             throw err;
         }
+        console.log(node)
         res.json(node[0])
         debug(node)
     })

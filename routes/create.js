@@ -8,7 +8,7 @@ var Nodo = require("../models/node");
 
 var router = express.Router();
 
-var ancestors = [], nodes = [], index = 0, node = {}, inserted = 0;
+var ancestors = [], nodes = [], index = 0, node = {}, inserted = 0, performance;
 
 //Connect to Mongoose
 mongoose.createConnection('mongodb://localhost:27017/ppc?socketTimeoutMS=60000000&connectTimeoutMS=60000000&poolSize=3&journal=false', {
@@ -21,7 +21,7 @@ mongoose.createConnection('mongodb://localhost:27017/ppc?socketTimeoutMS=6000000
   }
 });
 
-//var bulk = mongoose.connection.db.collection('nodes').initializeUnorderedBulkOp();
+var bulk = mongoose.connection.db.collection('nodes').initializeUnorderedBulkOp();
 
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({"extended" : false}));
@@ -68,11 +68,8 @@ router.get("/test",function(req,res){
 router.post("/",function(req,res){
 	console.time("perf")
 	console.time("perf2")
-	ancestors = [];
-	index = 0;
-	node = {};
-	nodes.length = 0;
-	inserted = 0;
+	console.log(req.body)
+	performance = Date.now();
 
 	//NEW TREE
 	var t = {
@@ -135,6 +132,7 @@ router.post("/",function(req,res){
 	}
 	t.vertecesAttributeList = vertecesAttributeList;
 	t.edgesAttributeList = edgesAttributeList;
+	
 	//INSERT TREE
 	Tree.createTree(t, function(err, data){
 		if(err){
@@ -142,6 +140,8 @@ router.post("/",function(req,res){
 		}
 		//console.log(data)
 		t.id = data._id;
+
+		//send result
 		res.json(t);
 
 		//CREATE NODES
@@ -156,35 +156,36 @@ router.post("/",function(req,res){
 
 
 //BUILDTREE FUNCTION
-var buildTree = function buildTreeRecursive(key, albero, split, depth, k, vatt, eatt){
-	//console.log("chiamata ricorsiva: "+ key + " - nodes: " + nodes.length)
-	if(nodes.length == 20000){
-		console.log("chiamata ricorsiva: "+ key)
-		Nodo.collection.insert(nodes.slice(0), {  writeConcern: { wtimeout: 0 }, ordered: false }, function(err){
-
-			if(err){
-				throw err;
-			}
-			inserted++;
-			console.log("inserito: " + inserted)
-
-		})
+var buildTree = function(key, albero, split, depth, k, vatt, eatt){
+	ancestors.length = 0;
+	index = 0;
+	inserted = 0;
 	nodes.length = 0;
-	}else{
-		nodes.push({
-			"seq_number": key,
-			"tree_id": albero.id,
-			"name": "Vertex_" + key,
-			"level": k,
-			"attributes": vatt.slice(0),
-			"edge": {
-				"id_edge": "edge_" + key,
-				"attributes": eatt.slice(0),
+	console.log(process.memoryUsage())
+	buildTreeRecursiveSmart(key, albero, split, depth, k, vatt, eatt);
+	//buildTreeRecursive(key, albero, split, depth, k, vatt, eatt);
+	//buildTreeRecursiveBulk(key, albero, split, depth, k, vatt, eatt);
+	//buildTreeRecursiveSlice(key, albero, split, depth, k, vatt, eatt);
+	console.log("fine")
+	return 1;
+}
 
-			},
-			"ancestors": ancestors.slice(0)
-		})
-	}
+function buildTreeRecursive(key, albero, split, depth, k, vatt, eatt){
+	//console.log("chiamata ricorsiva: "+ key)
+	
+	nodes.push({
+		"seq_number": key,
+		"tree_id": albero.id,
+		"name": "Vertex_" + key,
+		"level": k,
+		"attributes": vatt.slice(0),
+		"edge": {
+			"id_edge": "edge_" + key,
+			"attributes": eatt.slice(0),
+
+		},
+		"ancestors": ancestors.slice(0)
+	})
 	
 
 	index++;
@@ -192,13 +193,19 @@ var buildTree = function buildTreeRecursive(key, albero, split, depth, k, vatt, 
 	if (k == depth){
 		if(index == albero.total){
 			console.timeEnd("perf")
-			Nodo.collection.insert(nodes.slice(0), {  writeConcern: { wtimeout: 0 }, ordered: false }, function(err){
-			if(err){
-				throw err;
-			}
-			inserted++;
-			console.log("last: "+ data.ops[0].seq_number + " - n: " + inserted)
-			console.timeEnd("perf2")
+			console.log("inserting nodes into database...")
+			mongoose.connection.db.collection('nodes').insert(nodes, {  writeConcern: { wtimeout: 0}, ordered: false }, function(err){
+				
+				if(err){
+					throw err;
+				}
+				console.timeEnd("perf2")
+				var perf = Date.now() - performance;
+				console.log(process.memoryUsage())
+				Tree.updateTree({id: albero.id, perf: perf + " ms"}, function(err, data){
+					//console.log(data)
+					console.log("creation time has been updated")
+				});
 			})
 
 		}
@@ -228,6 +235,247 @@ var buildTree = function buildTreeRecursive(key, albero, split, depth, k, vatt, 
 	}
 
 }
+
+
+//BUILDTREE FUNCTION SLICE
+function buildTreeRecursiveSlice(key, albero, split, depth, k, vatt, eatt){
+	//console.log("chiamata ricorsiva: "+ key + " - nodes: " + nodes.length)
+	if(nodes.length == 998){
+		mongoose.connection.db.collection('nodes').insert(nodes.slice(0), {  writeConcern: { wtimeout: 0 }, ordered: false }, function(err){
+
+			if(err){
+				throw err;
+			}
+			inserted++;
+			//console.log("inserito: " + inserted)
+
+		})
+	nodes.length = 0;
+	}else{
+		nodes.push({
+			"seq_number": key,
+			"tree_id": albero.id,
+			"name": "Vertex_" + key,
+			"level": k,
+			"attributes": vatt.slice(0),
+			"edge": {
+				"id_edge": "edge_" + key,
+				"attributes": eatt.slice(0),
+
+			},
+			"ancestors": ancestors.slice(0)
+		})
+	}
+	
+
+	index++;
+	//CASO FOGLIA
+	if (k == depth){
+		if(index == albero.total){
+			console.timeEnd("perf")
+			mongoose.connection.db.collection('nodes').insert(nodes.slice(0), {  writeConcern: { wtimeout: 0 }, ordered: false }, function(err){
+			if(err){
+				throw err;
+			}
+			inserted++;
+			console.log("last: " + inserted)
+			console.timeEnd("perf2")
+			var perf = Date.now() - performance;
+				
+				Tree.updateTree({id: albero.id, perf: perf + " ms"}, function(err, data){
+					//console.log(data)
+					console.log("time creation albero aggiornato")
+				});
+			})
+
+		}
+		return;
+	}
+
+	//CASO FIGLI
+	//delete node.ancestors;
+	//ancestors.push(node)
+	ancestors.unshift({
+		"seq_number": key,
+		"name": "Vertex_" + key,
+		"level": k,
+		"attributes": vatt.slice(0),
+		"edge": {
+			"id_edge": "edge_" + key,
+			"attributes": eatt.slice(0)
+		}
+
+	});
+	for(var i = 0; i < split; i++){
+		buildTreeRecursiveSlice(index, albero, split, depth, k+1, setAttributesValues(albero.vertecesAttributeList), setAttributesValues(albero.edgesAttributeList))
+		if(i == split-1){
+			//ancestors.pop();
+			ancestors.shift()
+	    }
+	}
+
+}
+
+//BUILDTREE FUNCTION SMART
+function buildTreeRecursiveSmart(key, albero, split, depth, k, vatt, eatt){
+	//console.log("chiamata ricorsiva: "+ key)
+	
+	nodes.push({
+		"seq_number": key,
+		"tree_id": albero.id,
+		"name": "Vertex_" + key,
+		"level": k,
+		"attributes": vatt.slice(0),
+		"edge": {
+			"id_edge": "edge_" + key,
+			"attributes": eatt.slice(0),
+
+		},
+		"ancestors": ancestors.slice(0)
+	})
+	
+
+	index++;
+	//CASO FOGLIA
+	if (k == depth){
+		if(index == albero.total){
+			console.timeEnd("perf")
+			console.log("inserting nodes into database...")
+			smartInsert(albero);
+
+		}
+		return;
+	}
+
+	//CASO FIGLI
+	//delete node.ancestors;
+	//ancestors.push(node)
+	ancestors.unshift({
+		"seq_number": key,
+		"name": "Vertex_" + key,
+		"level": k,
+		"attributes": vatt.slice(0),
+		"edge": {
+			"id_edge": "edge_" + key,
+			"attributes": eatt.slice(0)
+		}
+
+	});
+	for(var i = 0; i < split; i++){
+		buildTreeRecursiveSmart(index, albero, split, depth, k+1, setAttributesValues(albero.vertecesAttributeList), setAttributesValues(albero.edgesAttributeList))
+		if(i == split-1){
+			//ancestors.pop();
+			ancestors.shift()
+	    }
+	}
+
+}
+
+
+function smartInsert(t){
+	//j is the number of inserts to check last operation
+	var j = Math.ceil(t.total/990);
+	var nods;
+	while(nodes.length > 0){
+		nods =  nodes.slice(-990)
+			mongoose.connection.db.collection('nodes').insert(nods, {  writeConcern: { wtimeout: 0 }, ordered: false }, function(err){
+				
+				if(err){
+					throw err;
+				}
+				inserted++
+				if(inserted == j){
+					console.timeEnd("perf2")
+					console.log(process.memoryUsage())
+					var perf = Date.now() - performance;
+				
+					Tree.updateTree({id: t.id, perf: perf + " ms"}, function(err, data){
+						//console.log(data)
+						console.log("creation time has been updated")
+					});
+				}
+				
+				
+			})
+
+			try{
+				nodes.length = nodes.length - 990;
+				
+			}catch(err){
+				nodes.length = 0
+				
+			}
+	}
+}
+
+//BUILDTREE FUNCTION BULK
+function buildTreeRecursiveBulk(key, albero, split, depth, k, vatt, eatt){
+	//console.log("chiamata ricorsiva: "+ key + " - nodes: " + nodes.length)
+	bulk.insert({
+			"seq_number": key,
+			"tree_id": albero.id,
+			"name": "Vertex_" + key,
+			"level": k,
+			"attributes": vatt.slice(0),
+			"edge": {
+				"id_edge": "edge_" + key,
+				"attributes": eatt.slice(0),
+
+			},
+			"ancestors": ancestors.slice(0)
+		})
+	
+	
+
+	index++;
+	//CASO FOGLIA
+	if (k == depth){
+		if(index == albero.total){
+			console.timeEnd("perf");
+			bulk.insert(node)
+			bulk.execute(function(err, result) {
+		      if(err){
+		      	console.log(err)
+		      }
+		      console.timeEnd("perf2")
+		      var perf = Date.now() - performance;
+				
+				Tree.updateTree({id: albero.id, perf: perf + " ms"}, function(err, data){
+					//console.log(data)
+					console.log("time creation albero aggiornato")
+				});
+		      //db.close();
+		    });
+
+		}
+		return;
+	}
+
+	//CASO FIGLI
+	//delete node.ancestors;
+	//ancestors.push(node)
+	ancestors.unshift({
+		"seq_number": key,
+		"name": "Vertex_" + key,
+		"level": k,
+		"attributes": vatt.slice(0),
+		"edge": {
+			"id_edge": "edge_" + key,
+			"attributes": eatt.slice(0)
+		}
+
+	});
+	for(var i = 0; i < split; i++){
+		buildTreeRecursiveBulk(index, albero, split, depth, k+1, setAttributesValues(albero.vertecesAttributeList), setAttributesValues(albero.edgesAttributeList))
+		if(i == split-1){
+			//ancestors.pop();
+			ancestors.shift()
+	    }
+	}
+
+}
+
+
 
 /* GET users listing. 
 router.get('/', function(req, res, next) {

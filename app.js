@@ -22,7 +22,8 @@ mongoose.connect('mongodb://localhost:27017/ppc?socketTimeoutMS=60000000&connect
 //ROUTES
 var routes = require('./routes/index');
 var test = require('./routes/test');
-var create = require('./routes/create');
+//var create = require('./routes/create');
+var create = require('./routes/create_threads');
 var trees = require('./routes/trees');
 var nodes = require('./routes/nodes');
 

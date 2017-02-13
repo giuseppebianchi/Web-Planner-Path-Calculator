@@ -137,9 +137,6 @@ A graph is used to model different manufacturing processes, for example a Tree c
         $(".retrieveTreeButton").click(function(e){
           e.preventDefault();
           e.stopPropagation();
-          if(currentView=="retrieve"){
-            return false;
-          }
           pageValue = 1;
           var count;
           $.get("/trees/count", function(data){
@@ -151,6 +148,10 @@ A graph is used to model different manufacturing processes, for example a Tree c
 
           });
           
+        })
+
+        $("body").on("click", ".refreshTreesButton", function(e){
+          getTrees(1, limit)
         })
 
         //GET TREES
@@ -385,8 +386,9 @@ A graph is used to model different manufacturing processes, for example a Tree c
             //data: form.serialize().replace(/%5B%5D/g, '[]'),
             success: function(data){
               //LOAD CREATING TEMPLATE
-              //content.html(Mustache.render(creatingTemplate, data))
-              //currentView="creating";
+              //console.log(data)
+              content.html(Mustache.render(creatingTemplate, data))
+              currentView="creating";
             },
             error: function(err){
               console.log("Ops! Something went wrong. Try Again!") 

@@ -6,7 +6,7 @@ var Schema =   mongoose.Schema;
 //create Node schema
 var nodeSchema = new Schema({
 	//_id: Schema.Types.ObjectId,
-	tree_id: Schema.Types.ObjectId,
+	tree_id: String,
 	seq_number: Number,
 	name: String,
 	level: Number,
