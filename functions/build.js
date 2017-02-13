@@ -61,6 +61,7 @@ process.on('message', function(t) {
 
 
 	function callbackProcess(){
+		console.log(process.memoryUsage())
 		process.send("ok");
 	}
 
