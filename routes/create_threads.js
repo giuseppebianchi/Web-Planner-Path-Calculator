@@ -92,8 +92,21 @@ router.post("/",function(req,res){
 	  	temp.ref = "Edge";
 	  	//per il momento la funzione di generazione valori è statica
 	  	//temp.ref = req.body.vertexGenerationRule[i];
+
+
+	  	
 	  	temp.k = parseFloat(req.body['kValueEdge[]'][i]);
 	  	temp.n = parseFloat(req.body['nValueEdge[]'][i]);
+	  	
+	  	//la funzione random prende k come valore più piccolo
+	  	//nel caso sia più grande i valori vengono scambiati
+	  	//in modo tale da evitare risultati sbagliati
+	  	if(temp.k > temp.n){
+	  		//swap
+	  		temp.n = [temp.k, temp.k = temp.n][0];
+	  	}
+
+	  	
 	  	temp.isInteger = isIntegerE[i];
 	  	edgesAttributeList.push(temp);
 
