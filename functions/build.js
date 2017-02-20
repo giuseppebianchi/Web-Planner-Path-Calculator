@@ -1,13 +1,22 @@
 process.on('message', function(t) {
 
-	console.log("start child...", t)
+	console.log("start child...", process.pid)
 
 	var mongoose = require('mongoose')
 
 	var Tree = require("../models/tree");
 	var Nodo = require("../models/node");
 
-
+	//Connect to Mongoose
+	mongoose.createConnection('mongodb://localhost:27017/ppc', {
+		raw: true,
+	  	server: {
+	    	socketOptions: {
+	      		socketTimeoutMS: 0,
+	      		connectTimeoutMS: 0
+	    }
+	  }
+	});
 	//This function generates floating-point between two numbers low (inclusive) and high (exclusive) ([low, high))
 	var random = function(low, high) {
 		var number = Math.random() * (high - low) + low;
@@ -50,12 +59,10 @@ process.on('message', function(t) {
 	console.time("perf2")
 	console.log(process.memoryUsage())
 
-
-	  // Do work  (in this case just up-case the string
-	  
-	  buildTreeRecursiveSmart(0, t, t.splitSize, t.depthSize, 0, setAttributesValues(t.vertecesAttributeList), setAttributesValues(t.edgesAttributeList))
-	  // Pass results back to parent process
-	  //process.send("ok");
+	
+	buildTreeRecursiveSmart(0, t, t.splitSize, t.depthSize, 0, setAttributesValues(t.vertecesAttributeList), setAttributesValues(t.edgesAttributeList)) 
+	// Pass results back to parent process
+	//process.send("ok");
 
 
 
@@ -63,6 +70,7 @@ process.on('message', function(t) {
 	function callbackProcess(){
 		console.log(process.memoryUsage())
 		process.send("ok");
+		process.exit();
 	}
 
 	//BUILDTREE FUNCTION SMART
@@ -138,7 +146,7 @@ process.on('message', function(t) {
 		var nods;
 		while(nodes.length > 0){
 			nods =  nodes.slice(-990)
-				Nodo.collection.insert(nods, function(err, data){
+				Nodo.collection.insert(nods, {  writeConcern: { wtimeout: 0 , w: 0}, ordered: false, journal: false, timeout:false }, function(err, data){
 					//console.log(data)
 					if(err){
 						throw err;

@@ -17,7 +17,7 @@ var treeSchema  = new Schema({
     },
     creation_time: {
         type: String,
-        default: "Building..."
+        default: "In Queue..."
     },
     ready: {
         type: Number,

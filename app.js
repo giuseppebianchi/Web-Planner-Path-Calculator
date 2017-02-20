@@ -9,7 +9,7 @@ const v8 = require('v8');
 //v8.setFlagsFromString('--max_old_space_size=4096');
 
 //Connect to Mongoose
-mongoose.connect('mongodb://localhost:27017/ppc?socketTimeoutMS=60000000&connectTimeoutMS=60000000&poolSize=3&journal=false', {
+mongoose.connect('mongodb://localhost:27017/ppc?socketTimeoutMS=60000000&connectTimeoutMS=60000000&poolSize=100&journal=false', {
   journal: false,
   server: {
     socketOptions: {

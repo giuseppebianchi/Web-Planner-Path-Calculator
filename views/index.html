@@ -168,6 +168,9 @@ A graph is used to model different manufacturing processes, for example a Tree c
         $("body").on("click", ".showTree", function(e){
           e.preventDefault();
           e.stopPropagation();
+          if($(this).data("tree-ready") == 0){
+            return false;
+          }
           var id = $(this).data("tree-id")
           $.get("/trees/" + id, function(data){
             //total0 is the max seq_number
@@ -233,27 +236,31 @@ A graph is used to model different manufacturing processes, for example a Tree c
             //create object to save sum for each attribute, initializing it with current node's attributes values
             var attributes = {};
             $.each(NODO.attributes, function(k, attribute){
+              var name = "Vertex_" + attribute.name
               var a = {
                 name: attribute.name,
                 sum: parseFloat(attribute.value),
                 type: "Node"
               }
-              attributes[attribute.name] = a;
+              attributes[name] = a;
             })
             $.each(NODO.edge.attributes, function(k, attribute){
+              var name = "Edge_" + attribute.name
               var a = {
                 name: attribute.name,
                 sum: parseFloat(attribute.value),
                 type: "Edge"
               }
-              attributes[attribute.name] = a;
+              attributes[name] = a;
             })
 
             //iterate each anchestor to sum attributes' values
             $.each(NODO.ancestors, function(k, node){
               //vertece attributes
+              console.log(attributes)
               $.each(node.attributes, function(k, attribute){
-                attributes[attribute.name].sum += parseFloat(attribute.value);
+                var name = "Vertex_" + attribute.name
+                attributes[name].sum += parseFloat(attribute.value);
               })
 
 
@@ -265,7 +272,8 @@ A graph is used to model different manufacturing processes, for example a Tree c
               }else{
                 //if is not destination node, sum egdes nodes too
                 $.each(node.edge.attributes, function(k, attribute){
-                  attributes[attribute.name].sum += parseFloat(attribute.value);
+                  var name = "Edge_" + attribute.name
+                  attributes[name].sum += parseFloat(attribute.value);
                 })
                 results.nodes.push(node)
               }
@@ -282,7 +290,7 @@ A graph is used to model different manufacturing processes, for example a Tree c
             results.total = results.nodes.length + 2;
             modal.modal("hide");
             //NODO is a global variable
-
+            console.log(results)
             content.html(Mustache.render(resultTemplate, results))
             currentView="result";
         })
