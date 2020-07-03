@@ -1,5 +1,5 @@
 # Planner Path Calculator
-This project was assigned in my Software Engineering course, at University of L'Aquila, in collaboration with Micron Technology Inc.
+This project was assigned in my Software Engineering course, at University of L'Aquila, in collaboration with **Micron Technology Inc.**.
 http://mynameisbianchi.herokuapp.com/projects/ppc/
 
 ## Demo
