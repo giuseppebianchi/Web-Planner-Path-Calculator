@@ -19,7 +19,7 @@
     "mongo-sync": "^2.0.1",
     "mongodb": "^2.2.22",
     "mongoose": "^4.7.7",
-    "morgan": "~1.6.1",
+    "morgan": "~1.10.0",
     "serve-favicon": "~2.3.0"
   }
 }
